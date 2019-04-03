@@ -29,3 +29,7 @@ source_struct.y = source(:, 2);
 source_struct.z = source(:, 3);
 fscatter3(source_struct);
 
+%%
+[R, t] = icp();
+
+
