@@ -1,4 +1,4 @@
-function setup(varargin)
+function resdir = setup(varargin)
     addpath ../SupplementalCode
-    addpath ../Data
+    resdir = '../Data';
 end

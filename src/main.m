@@ -3,7 +3,7 @@ clc
 close all
 
 %%
-setup();
+resdir = setup();
 
 %%
-A = readPcd("data/0000000038.pcd");
+A = readPcd(fullfile(resdir, 'data/0000000038.pcd'));
