@@ -1,12 +1,9 @@
-function [R, t] = icp(varargin)
+function [R, t] = icp(A1, A2)
 % ICP Iterative Closest Point algorithm.
 % Given two point-clouds A1 (base) and A2 (target), ICP tries to find a spatial transformation that minimizes the distance (e.g. Root Mean Square (RMS)) between A1 and A2
 % R and t are the rotation matrix and the translation vector in d dimensions, respectively. ψ is a one-to-one matching function that creates correspondences between the elements of A1 and A2. R and t that minimize above equation are used to define camera movement between A1 and A2.
 
-A1 = reshape(1:5*3, 5, 3);
 [n1, d1] = size(A1);
-
-A2 = zeros(n1, d1);
 [n2, d2] = size(A2);
 
 % step 1: initialize R and t
@@ -15,7 +12,7 @@ t = zeros(n1, d1);
 
 old_distances = zeros(n1, 1);
 min_distances = ones(n1, 1);
-% ^ arbitrary initialization not equal to to old_distances
+% ^ arbitrary initialization not equal to old_distances
 
 p = A1;
 q = A2;
