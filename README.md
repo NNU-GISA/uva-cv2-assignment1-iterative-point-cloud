@@ -11,7 +11,7 @@
 
 ### analyze
 - [ ] accuracy
-- [ ] speed
+- [x] speed
 - [ ] stability: changes in magnitude of R and t
 - [ ] tolerance to noise
 
