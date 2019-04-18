@@ -14,19 +14,6 @@ for i=1:length(files)
     ids(i) = id;
 end
 
-%%
+%% TODO: loop over ids
 A1 = readPcd(fullfile(datadir, ids(39) + '.pcd'));
 A2 = readPcd(fullfile(datadir, ids(40) + '.pcd'));
-
-% As a test please verify that this returns a matrix of size 59596x4, but not something else.
-assert(isequal(size(A1), [59596, 4]))
-
-%%
-source = load(fullfile(resdir, 'source.mat'));
-target = load(fullfile(resdir, 'target.mat'));
-A1 = transpose(source.source);
-A2 = transpose(target.target);
-
-[R, t] = icp(A1, A2);
-R
-t
