@@ -3,18 +3,17 @@
 ## Implementation
 
 ### point selection techniques
-- all the points
-- uniform sub-sampling
-- random sub-sampling in each iteration
-- sub-sampling more from informative regions
-
-question: is this for A1? A2? both?
+- [x] all the points
+- [ ] uniform sub-sampling
+- [ ] random sub-sampling in each iteration
+- [ ] sub-sampling more from informative regions
+    - how to map regions back to points?
 
 ### analyze
-- accuracy
-- speed
-- stability: changes in magnitude of R and t
-- tolerance to noise
+- [ ] accuracy
+- [ ] speed
+- [ ] stability: changes in magnitude of R and t
+- [ ] tolerance to noise
 
 ## Merging Scenes
 

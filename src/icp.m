@@ -36,7 +36,9 @@ while ~isequal(old_distances, min_distances)
             % end
         end
     end
+    % TODO: confirm this only yields one point per point
     [min_distances, min_idxs] = min(distances);
+    size(min_idxs)
     % step 3: refine R and t using Singular Value Decomposition (Please check https://igl.ethz.ch/projects/ARAP/svd_rot.pdf for details)
     % - compute the weighted centroids of both point sets
     p_hat = mean(p);
