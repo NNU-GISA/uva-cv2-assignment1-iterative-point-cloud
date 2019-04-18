@@ -24,6 +24,6 @@ saveas(fig_src, 'cloud_src.png', 'png');
 saveas(fig_trg, 'cloud_trg.png', 'png');
 
 %%
-[R, t] = icp(source, target);
-R
+[r, t] = icp(source, target);
+r
 t
