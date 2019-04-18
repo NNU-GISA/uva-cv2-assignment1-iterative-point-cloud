@@ -35,16 +35,9 @@ step
 end
 
 % step 2: Find the closest points for each point in the base point set (A1) from the target point set (A2) using brute-force approach.
-function [min_distances, min_idxs] = find_closest(p, q)
-    distances = zeros(n1, n2);
-    for i = 1 : n1
-        for j = 1 : n2
-            distances(i, j) = rms(p(i, :), q(j, :));
-        end
-    end
-    % TODO: confirm this only yields one point per point
-    [min_distances, min_idxs] = min(distances);
-    size(min_idxs)
+function idx = find_closest(p, q)
+    d = dist(p, q');
+    [~, idx] = min(d,[],2);
 end
 
 % step 3: refine R and t using Singular Value Decomposition
