@@ -4,8 +4,8 @@
 
 ### point selection techniques
 - [x] all the points
-- [ ] uniform sub-sampling
-- [ ] random sub-sampling in each iteration
+- [x] uniform sub-sampling
+- [x] random sub-sampling in each iteration
 - [ ] sub-sampling more from informative regions
     - how to map regions back to points?
 

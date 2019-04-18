@@ -2,11 +2,15 @@ function [R, T] = icp(A1, A2, sampling_strategy)
 % ICP Iterative Closest Point algorithm.
 % Given two point-clouds A1 (base) and A2 (target), ICP tries to find a spatial transformation that minimizes the distance (e.g. Root Mean Square (RMS)) between A1 and A2
 % r and t are the rotation matrix and the translation vector in d dimensions, respectively. ψ is a one-to-one matching function that creates correspondences between the elements of A1 and A2. r and t that minimize above equation are used to define camera movement between A1 and A2.
-
-% sampling_strategy
+% sampling_strategy: 'full', 'uniform', 'random'
 
 [n1, d1] = size(A1);
 [n2, d2] = size(A2);
+
+if nargin < 2
+    sampling_strategy = 'full';
+    n = n1;
+end
 
 % step 1: initialize r and t
 R = eye(d1);
@@ -14,7 +18,12 @@ T = zeros(1, d1);
 r = R;
 t = T;
 
-p = sample(A1);
+if sampling_strategy == 'uniform'
+    p_ = randsample(A1, n);
+elseif sampling_strategy == 'full'
+    p_ = A1;
+% else
+end
 q = A2;
 
 % step 4: go to step 2 unless RMS is unchanged.
@@ -27,11 +36,14 @@ min_distances = ones(n1, 1);
 tic;
 while ~isequal(old_distances, min_distances)
     step = step + 1
-    p = p * r + t;
+    if sampling_strategy == 'random'
+        p_ = randsample(A1, n);
+    end
+    p = p_ * r + t;
     old_distances = min_distances;
     [min_distances, min_idxs] = find_closest(p, q);
     [r, t] = estimate_transform(p, q)
-    R = R * t;
+    R = R * r;
     T = T .+ t;
 end
 time = toc
@@ -43,6 +55,8 @@ function idx = find_closest(p, q)
     d = dist(p, q');
     [~, idx] = min(d,[],2);
 end
+
+assert(isequal(find_closest(eye(2), eye(2)), [[0 0], [0 1]]));
 
 % step 3: refine r and t using Singular Value Decomposition
 % check https://igl.ethz.ch/projects/ARAP/svd_rot.pdf
@@ -64,11 +78,4 @@ function [r, t] = estimate_transform(p, q)
     t = q_hat - p_hat * r;
 end
 
-% sample n points from a point cloud
-% default: get all of them
-function [A_] = sample(A, n)
-    if nargin < 2
-        [n, d] = size(A);
-    end
-    A_ = randsample(A, n);
-end
+assert(isequal(estimate_transform(eye(2), eye(2)), [eye(2), [0 0]]));

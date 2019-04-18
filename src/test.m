@@ -9,7 +9,7 @@ resdir = setup();
 doSave = false;
 
 % As a test please verify that this returns a matrix of size 59596x4, but not something else.
-assert(isequal(size(A1), [59596, 4]))
+assert(isequal(size(A1), [59596, 4]));
 
 %% Load test data
 source = load(fullfile(resdir, 'source.mat'));
