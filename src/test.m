@@ -27,6 +27,7 @@ if doSave
     saveas(fig_trg, 'cloud_trg.png', 'png');
 end
 
+%%
 [R, t] = icp(source, target);
 R
 t
