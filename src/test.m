@@ -6,10 +6,8 @@ close all
 resdir = setup();
 
 %% Params
+doVisualize = false;
 doSave = false;
-
-% As a test please verify that this returns a matrix of size 59596x4, but not something else.
-assert(isequal(size(A1), [59596, 4]));
 
 %% Load test data
 source = load(fullfile(resdir, 'source.mat'));
@@ -18,8 +16,10 @@ target = load(fullfile(resdir, 'target.mat'));
 target = transpose(target.target);
 
 %% Visualize test data
-fig_src = visualize_cloud(source);
-fig_trg = visualize_cloud(target);
+if doVisualize
+    fig_src = visualize_cloud(source);
+    fig_trg = visualize_cloud(target);
+end
 
 %% Save results
 if doSave
@@ -27,7 +27,6 @@ if doSave
     saveas(fig_trg, 'cloud_trg.png', 'png');
 end
 
-%%
-[R, t] = icp(source, target);
-R
-t
+%% Run ICP
+[R, t, idx] = icp(source, target, 0.001, 'all', 5);
+

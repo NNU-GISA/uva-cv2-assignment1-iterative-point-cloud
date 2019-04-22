@@ -18,6 +18,6 @@ end
 A1 = readPcd(fullfile(datadir, ids(39) + '.pcd'));
 A2 = readPcd(fullfile(datadir, ids(40) + '.pcd'));
 
-%%
-[R, t] = icp(A1(1:2000, :), A2);
+%% Run ICP
+[R, t] = icp(A1, A2);
 
