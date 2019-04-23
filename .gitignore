@@ -13,7 +13,6 @@ Reading/
 *.bbl
 *.blg
 *.log
-*.pdf
 *.xml
 *.run
 *-blx.bib

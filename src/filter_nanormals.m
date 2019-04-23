@@ -1,26 +1,25 @@
 function filtered_points2 = filter_nanormals(cloud, normals)
 
-filtered_points = [];
 
-for i = 1:length(normals)
-    if isnan(normals(i))
-%         disp(cloud(i,:))
-        filtered_points = [cloud(i,:); filtered_points];
-    end
-end
 
-filtered_points2 = [];
-outliers = isoutlier(filtered_points(:,3));
+nonNans = ~isnan(normals(:,1));
+filtered_points = cloud(nonNans,:);
 
-for i = 1:length(filtered_points)
-    if outliers(i) == 0
-%         disp(cloud(i,:)
-        filtered_points2 = [filtered_points(i,:); filtered_points2];
-    end
-end
+
+outliers = filtered_points(:,3) < 1;
+filtered_points2 = filtered_points(outliers,:);
+
+
+% x = filtered_points2(:,1);
+% y = filtered_points2(:,2);
+% z = filtered_points2(:,3);
+% u = filtered_normals2(:,1);
+% v = filtered_normals2(:,2);
+% w = filtered_normals2(:,3);
+% 
+% quiver3(x,y,z,u,v,w)
 
 % visualize_cloud(filtered_points2)
 
-% outliers2 = isoutlier(cloud(:,3));
 
 end
