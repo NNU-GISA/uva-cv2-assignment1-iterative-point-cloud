@@ -157,10 +157,3 @@ saveas(f2, 'interest-sampling.png');
 
 %%
 
-
-
-function A = loadA(datadir, id)
-A_normal = readPcd(fullfile(datadir, id + '_normal.pcd'));
-A_cloud = readPcd(fullfile(datadir, id + '.pcd'));
-A = filter_nanormals(A_cloud, A_normal);
-end
