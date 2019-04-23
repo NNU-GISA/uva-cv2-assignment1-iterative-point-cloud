@@ -41,30 +41,41 @@ A2 = filter_nanormals(A2_cloud, A2_normal);
 
 %%
 
-step=2;
+frame_step = 4;
+point_step = 1;
 
-A1 = loadA(datadir, ids(1));
+start = 1;
+
+max_iter = 250;
+score_cutoff = 5;
+
+A1 = loadA(datadir, ids(start));
+data = [A1(1:point_step:end, :)];
 % len(data) is currently number of steps in loop
 %data = cell(0, fix(length(ids)/step) - int(~logical(mod(length(ids), step))));
-data = [A1(1:50:end, :)];
 
-for i = 1+step:step:length(ids)
+for i = start+frame_step:frame_step:length(ids)%start - 1 + frame_step * 5%length(ids)
     A2 = loadA(datadir, ids(i));
-    [R, t] = icp(A1, A2, 0.001, 'uniform-each', 1000);
-    data = [data * R' + t ; A2(1:50:end, :)];
-%    data{fix(i/step)} = ;
-    A1 = data;  % difference between 3.1 and 3.2 is putting A2 or data here
+    weights = ones(1, size(A1, 1));
+    [R, t, scoreArray] = icp(A1, A2, 0.001, 'uniform-each', 5000, weights, max_iter);
+%    if scoreArray(end) < score_cutoff
+    data = [data * R' + t ; A2(1:point_step:end, :)];
+    % data{fix(i/step)} = ;
+    A1 = A2;  % difference between 3.1 and 3.2 is putting A2 or data here
+%    end
     disp(i)
 end
+
 visualize_cloud(data);
 
 
-function A = loadA(datadir, id)
-A_normal = readPcd(fullfile(datadir, id + '_normal.pcd'));
-A_cloud = readPcd(fullfile(datadir, id + '.pcd'));
-A = filter_nanormals(A_cloud, A_normal);
-end
 
+
+
+
+
+
+%%
 A1_normal = readPcd(fullfile(datadir, ids(2) + '_normal.pcd'));
 A1_cloud =  readPcd(fullfile(datadir, ids(2) + '.pcd'));
 A2_normal = readPcd(fullfile(datadir, ids(3) + '_normal.pcd'));
@@ -143,3 +154,14 @@ f2 = visualize_cloud(A__);
 saveas(f2, 'interest-sampling.png');
 end
 
+
+
+%%
+
+
+
+function A = loadA(datadir, id)
+A_normal = readPcd(fullfile(datadir, id + '_normal.pcd'));
+A_cloud = readPcd(fullfile(datadir, id + '.pcd'));
+A = filter_nanormals(A_cloud, A_normal);
+end
