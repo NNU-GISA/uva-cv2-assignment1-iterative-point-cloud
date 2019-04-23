@@ -42,7 +42,7 @@ for i = 1:n_iter_test
     time = toc;
     
     % determine accuracy using RMS-error as a measure
-    idx = match_points(source * R' + t, target);
+    idx = knnsearch(target, source * R' + t);
     score = icp_eval(source, target(idx, :), R, t);
     acc = sqrt(score / length(source));
     

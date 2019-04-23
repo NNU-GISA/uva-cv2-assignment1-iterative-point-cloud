@@ -67,7 +67,7 @@ while doWhile
     p = p * R' + t;
     
     % determine new q values
-    idx2 = match_points(p, A2);
+    idx2 = knnsearch(A2, p);
     q = A2(idx2, :);
     
     % refine R and t using SVD (step 3)
