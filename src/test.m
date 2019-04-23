@@ -38,7 +38,7 @@ for i = 1:n_iter_test
     % run ICP and record run-time
     tic;
     [R, t] = icp(source, target, epsilon, ...
-        sampling_strategy, n_samples, sample_weights, n_iter_icp);
+        sampling_strategy, n_samples, sample_weights, n_iter_icp, true);
     time = toc;
     
     % determine accuracy using RMS-error as a measure
@@ -119,7 +119,7 @@ for j = 1:length(sigmaArray)
         
         % run ICP
         [R, t, scoreArray] = icp(source + noise', target, epsilon, ...
-            sampling_strategy, n_samples, sample_weights, n_iter_icp);
+            sampling_strategy, n_samples, sample_weights, n_iter_icp, true);
         
         % record scores
         resNoiseArray(j, :) = resNoiseArray(j, :) + sqrt(scoreArray / n_samples);

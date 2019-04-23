@@ -1,4 +1,4 @@
-function [R, t, scoreArray] = icp(A1, A2, epsilon, sampling_strategy, n_samples, sample_weights, max_iter)
+function [R, t, scoreArray] = icp(A1, A2, epsilon, sampling_strategy, n_samples, sample_weights, max_iter, force_max_iter)
 % ICP Iterative Closest Point algorithm.
 % Given two point-clouds A1 (base) and A2 (target), ICP tries to find a spatial transformation that minimizes the distance (e.g. Root Mean Square (RMS)) between A1 and A2
 % r and t are the rotation matrix and the translation vector in d dimensions, respectively. ψ is a one-to-one matching function that creates correspondences between the elements of A1 and A2. r and t that minimize above equation are used to define camera movement between A1 and A2.
@@ -14,6 +14,9 @@ if nargin < 3
 end
 if nargin < 4
     sampling_strategy = 'all';
+end
+if nargin < 8
+    force_max_iter = false;
 end
 
 % check if sampling strategy is valid
@@ -47,6 +50,12 @@ t = zeros(1, d1);
 % initialize score
 cur_score = 0;
 
+%{
+best_score = -1;
+best_R = R;
+best_t = t;
+%}
+
 doWhile = true;
 
 scoreArray = [];
@@ -79,19 +88,37 @@ while doWhile
     prev_score = cur_score;
     cur_score = icp_eval(p, q, new_R, new_t);
     
+    %{
+    if best_score < 0 || best_score > cur_score
+        best_score = cur_score;
+        best_R = R;
+        best_t = t;
+    end
+    %}
+    
     scoreArray = [scoreArray cur_score];
     n_iter = n_iter + 1;
     
     % display score for this iteration
     disp(cur_score);
     
+    doWhile = true;
+    if ~force_max_iter
+        doWhile = doWhile && abs(cur_score - prev_score) > epsilon;
+    end
     if nargin >= 7
-        doWhile = n_iter < max_iter;
-    else
-        doWhile = abs(cur_score - prev_score) > epsilon;
+        doWhile = doWhile && n_iter < max_iter;
     end
     
 end
+
+%{
+if nargin >= 7 && abs(cur_score - prev_score) <= epsilon
+    R = best_R;
+    t = best_t;
+end
+%}
+
 end
 
 % step 3: refine r and t using Singular Value Decomposition
@@ -107,8 +134,7 @@ Y = q - q_hat;
 S = X' * Y;
 % - compute the singular value decomposition S=UΣVT
 [U, ~, V] = svd(S);
-detVU = det(V * U');
-R = V * diag([ones(1, size(V, 2) - length(detVU)) detVU]) * U';
+R = V * diag([ones(1, size(V, 2) - 1) det(V * U')]) * U';
 % - compute the optimal translation
 t = q_hat - p_hat * R';
 end
