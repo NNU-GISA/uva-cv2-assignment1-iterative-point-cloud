@@ -6,14 +6,13 @@
 - [x] all the points
 - [x] uniform sub-sampling
 - [x] random sub-sampling in each iteration
-- [ ] sub-sampling more from informative regions
-    - how to map regions back to points?
+- [x] sub-sampling more from informative regions
 
 ### analyze
-- [ ] accuracy
+- [x] accuracy
 - [x] speed
-- [ ] stability: changes in magnitude of R and t
-- [ ] tolerance to noise
+- [x] stability: changes in magnitude of R and t
+- [x] tolerance to noise
 
 ## Merging Scenes
 
