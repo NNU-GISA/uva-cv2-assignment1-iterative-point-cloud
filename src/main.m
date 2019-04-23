@@ -69,12 +69,13 @@ end
 visualize_cloud(data);
 
 
-function A = loadA(datadir, id)
-A_normal = readPcd(fullfile(datadir, id + '_normal.pcd'));
-A_cloud = readPcd(fullfile(datadir, id + '.pcd'));
-A = filter_nanormals(A_cloud, A_normal);
-end
 
+
+
+
+
+
+%%
 A1_normal = readPcd(fullfile(datadir, ids(2) + '_normal.pcd'));
 A1_cloud =  readPcd(fullfile(datadir, ids(2) + '.pcd'));
 A2_normal = readPcd(fullfile(datadir, ids(3) + '_normal.pcd'));
@@ -152,3 +153,14 @@ Ai__ = Ai_ * R + t;
 f2 = visualize_cloud(Ai__);
 saveas(f2, 'interest-sampling.png');
 
+
+
+%%
+
+
+
+function A = loadA(datadir, id)
+A_normal = readPcd(fullfile(datadir, id + '_normal.pcd'));
+A_cloud = readPcd(fullfile(datadir, id + '.pcd'));
+A = filter_nanormals(A_cloud, A_normal);
+end
