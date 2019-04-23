@@ -118,16 +118,16 @@ for i = 1:100
     BoW = cat(1, BoW, BoW_);
 end
 
+function [sample_weights] = get_weights(datadir, id)
 % point selection by sub-sampling more from informative regions based on infrequent normals
 % build vocab
 vocabulary_size = 10;
 [~, vocabulary] = kmeans(double(A1n), vocabulary_size, 'display', 'off', 'replicates', 1, 'maxiter', 100);
-i = 1
-Ai_normal = readPcd(fullfile(datadir, ids(i) + '_normal.pcd'));
-Ai =        readPcd(fullfile(datadir, ids(i) +        '.pcd'));
-[Ai_, Ain_] = filter_nanormals(Ai, Ai_normal);
+A_normal = readPcd(fullfile(datadir, id + '_normal.pcd'));
+A =        readPcd(fullfile(datadir, id +       '.pcd'));
+[A_, An_] = filter_nanormals(A, A_normal);
 % BoW features
-BoW_ = get_BoW(Ain_, vocabulary);
+BoW_ = get_BoW(An_, vocabulary);
 % normalize to penalize points with common features
 totals = sum(BoW, 1);
 normalized = BoW ./ totals;
@@ -135,10 +135,11 @@ sample_weights = sum(normalized, 2);
 % calculate ICP using our new-found weighting
 [R, t, scoreArray] = icp(A1, A2, 0.001, 'uniform', 400, sample_weights, 100);
 % visualize original point cloud
-f1 = visualize_cloud(Ai_);
+f1 = visualize_cloud(A_);
 saveas(f1, 'before-sampling.png');
 % visualize our evidently improved rotated/translated one
-Ai__ = Ai_ * R + t;
-f2 = visualize_cloud(Ai__);
+A__ = A_ * R + t;
+f2 = visualize_cloud(A__);
 saveas(f2, 'interest-sampling.png');
+end
 
