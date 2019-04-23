@@ -65,3 +65,30 @@ A_cloud = readPcd(fullfile(datadir, id + '.pcd'));
 A = filter_nanormals(A_cloud, A_normal);
 end
 
+A1_normal = readPcd(fullfile(datadir, ids(2) + '_normal.pcd'));
+A1_cloud =  readPcd(fullfile(datadir, ids(2) + '.pcd'));
+A2_normal = readPcd(fullfile(datadir, ids(3) + '_normal.pcd'));
+A2_cloud =  readPcd(fullfile(datadir, ids(3) + '.pcd'));
+A1 = filter_nanormals(A1_cloud, A1_normal);
+A2 = filter_nanormals(A2_cloud, A2_normal);
+
+A1_cam = xmlread(fullfile(datadir, ids(2) + '_camera.xml'));
+A1_mat = load(fullfile(datadir, ids(2) + '.mat'));
+root = A1_mat.getDocumentElement();
+A1_intrinsic = root.getAttribute('intrinsic').getAttribute('data');
+A1_R =         root.getAttribute('R')        .getAttribute('data');
+A1_t =         root.getAttribute('t')        .getAttribute('data');
+
+[R, t] = icp(A1, A2, 0.001, 'uniform', 400);
+
+for i = 0:99
+    Ai_normal = readPcd(fullfile(datadir, ids(i) + '_normal.pcd'));
+    Ai =        readPcd(fullfile(datadir, ids(i) +        '.pcd'));
+    Filter_Ai = filter_nanormals(Ai, Ai_normal);
+    if prev_A
+        [R, t] = icp(prev_A, Filter_Ai, 0.001, 'uniform', 400);
+    end
+    prev_A = Filter_Ai;
+end
+% Run ICP
+
