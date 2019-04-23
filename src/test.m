@@ -67,11 +67,41 @@ disp(resTime);
 
 resStabilityArray = zeros(1, n_iter_icp);
 
-for i = 1:n_iter_test
+n = 10;
+
+resStabilityArray = zeros(1, n);
+
+scalar_factor = linspace(1,3,n);
+
+for i = 1:n
     
-    % TODO test stability
+%      R = [1,-0.00292012801766150,-0.0827472646167709,0;
+%          0.00287620088601331,1,-0.000650057579013490,0;
+%          0.0827488031192036,0.000409827711611413,1,0;
+%          0,0,0,1];
+%      t = [0.0771391744749337,0.000660309677121065,0.00207824512811228,0];
+    
+     R = [1,-0.00292012801766150,-0.0827472646167709;
+         0.00287620088601331,1,-0.000650057579013490;
+         0.0827488031192036,0.000409827711611413,1];
+     t = [0.0771391744749337,0.000660309677121065,0.00207824512811228];
+    
+    R_a = R.*scalar_factor(i);
+    t_a = t.*scalar_factor(i);
+    
+    augmented_source = source * R_a' + t_a;
+    
+    [R, t, scoreArray] = icp(source, augmented_source);
+    
+    resStabilityArray(i) = scoreArray(end);
+    
     
 end
+
+plot(linspace(1,3,n), resStabilityArray)
+title('Stability')
+ylabel('RMSE')
+xlabel('Changes in magnitude')
 
 resStabilityArray = resStabilityArray / n_iter_test;
 
