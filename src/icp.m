@@ -46,15 +46,15 @@ while abs(cur_score - prev_score) > epsilon
     
     % refine R and t using SVD (step 3)
     [new_R, new_t] = estimate_transform(p, q);
-    R = R .* new_R;
-    t = t + new_t;
+    R = new_R * R;
+    t = new_t + t;
     
     % score new transformation
     prev_score = cur_score;
     cur_score = eval(p, q, new_R, new_t);
     
 %    break
-%    disp(cur_score);
+    disp(cur_score);
     
 end
 
@@ -62,7 +62,7 @@ idx = match_points(A1 * R' + t, A2);
 
 end
 
-%{
+
 function idx = match_points(p, q)
 idx = zeros(1, size(p, 1));
 for i = 1:size(p, 1)
@@ -71,8 +71,9 @@ for i = 1:size(p, 1)
     idx(i) = j;
 end
 end
-%}
 
+
+%{
 function idx = match_points(p, q)
 n1 = size(p, 1);
 n2 = size(q, 1);
@@ -94,6 +95,7 @@ for i = n2+1:n1
     idx(i) = j;
 end
 end
+%}
 
 function score = eval(A1, A2, R, t)
 A3 = A1 * R' + t;
@@ -113,17 +115,8 @@ Y = q - q_hat;
 % - compute the d×d covariance matrix
 S = X' * Y;
 % - compute the singular value decomposition S=UΣVT
-[U, ~, VT] = svd(S);
-V = VT';
+[U, ~, V] = svd(S);
 detVU = det(V * U');
-%disp(p)
-%disp(q)
-%disp('===')
-%disp(V)
-%disp(U')
-disp(detVU)
-%disp(V)
-%disp(diag([ones(1, size(V, 2) - length(detVU)) detVU]))
 R = V * diag([ones(1, size(V, 2) - length(detVU)) detVU]) * U';
 % - compute the optimal translation
 t = q_hat - p_hat * R';

@@ -28,5 +28,5 @@ if doSave
 end
 
 %% Run ICP
-[R, t, idx] = icp(source, target, 0.001, 'all', 5);
+[R, t, idx] = icp(source, target, 0.001, 'all');
 
