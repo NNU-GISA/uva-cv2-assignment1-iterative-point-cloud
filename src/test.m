@@ -16,7 +16,9 @@ target = load(fullfile(resdir, 'target.mat'));
 target = transpose(target.target);
 
 %% Run ICP
-[R, t] = icp(source, target, 0.001, 'uniform-each', 800);
+weights = zeros(1, length(source));
+weights(1:800) = 1;
+[R, t] = icp(source, target, 0.001, 'informative', 400, weights);
 
 
 

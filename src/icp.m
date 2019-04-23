@@ -1,4 +1,4 @@
-function [R, t] = icp(A1, A2, epsilon, sampling_strategy, sampling_param)
+function [R, t] = icp(A1, A2, epsilon, sampling_strategy, n_samples, sample_weights)
 % ICP Iterative Closest Point algorithm.
 % Given two point-clouds A1 (base) and A2 (target), ICP tries to find a spatial transformation that minimizes the distance (e.g. Root Mean Square (RMS)) between A1 and A2
 % r and t are the rotation matrix and the translation vector in d dimensions, respectively. ψ is a one-to-one matching function that creates correspondences between the elements of A1 and A2. r and t that minimize above equation are used to define camera movement between A1 and A2.
@@ -20,23 +20,23 @@ end
 assert(ismember(sampling_strategy, ["all", "uniform", "uniform-each", "informative"]), ...
     'Unknown sampling strategy');
 
-% check sampling param for uniform sampling strategies
-if strcmp(sampling_strategy, 'uniform') || strcmp(sampling_strategy, 'uniform-each')
+% check number of samples for sampling strategies that are not 'all'
+if ~strcmp(sampling_strategy, 'all')
     assert(nargin >= 5, 'No number of sampled points given');
-    assert(sampling_param <= n1, 'Number of sampled points is larger than total amount of points');
+    assert(n_samples <= n1, 'Number of sampled points is larger than total amount of points');
 end
 
-% check sampling param for sampling strategy using informative regions
+% check weigths for sampling strategy using informative regions
 if strcmp(sampling_strategy, 'informative')
-    assert(nargin >= 5, 'No point weights given');
-    assert(length(sampling_param) == n1, 'Point weights do not match number of points in A1');
+    assert(nargin >= 6, 'No point weights given');
+    assert(length(sample_weights) == n1, 'Point weights do not match number of points in A1');
 end
 
 % initialize p for sampling strategies that initialize p once
 if strcmp(sampling_strategy, 'all')
     init_p = A1;
 elseif strcmp(sampling_strategy, 'uniform')
-    idx1 = randsample(n1, sampling_param);
+    idx1 = randsample(n1, n_samples);
     init_p = A1(idx1, :);
 end
 
@@ -54,10 +54,11 @@ while abs(cur_score - prev_score) > epsilon
     if strcmp(sampling_strategy, 'all') || strcmp(sampling_strategy, 'uniform')
         p = init_p;
     elseif strcmp(sampling_strategy, 'uniform-each')
-        idx1 = randsample(n1, sampling_param);
+        idx1 = randsample(n1, n_samples);
         p = A1(idx1, :);
     elseif strcmp(sampling_strategy, 'informative')
-        assert(false, 'NotImplementedError');
+        idx1 = randsample(n1, n_samples, true, sample_weights);
+        p = A1(idx1, :);
     end
     p = p * R' + t;
     
@@ -74,6 +75,7 @@ while abs(cur_score - prev_score) > epsilon
     prev_score = cur_score;
     cur_score = icp_eval(p, q, new_R, new_t);
     
+    % display score for this iteration
     disp(cur_score);
     
 end
