@@ -1,36 +1,33 @@
-function [BoW] = get_BoW(I, vocabulary, sampling_method, sift_descriptor, descriptor_type)
+function [BoW] = get_BoW(A_normal, vocabulary)
     % initialize BoW histogram
     vocabulary_size = size(vocabulary, 1);
     BoW = zeros(1, vocabulary_size);
     
-    % extract features from the image
-    [~, d] = extract_features(I, sampling_method, sift_descriptor, descriptor_type);
-    d = double(d);
-    num_d = size(d, 2);
+    num_A = size(A_normal, 1);
 
     % create the Bag of Words histogram
-    for i = 1:num_d
-        current_d = d(:, i);
+    for i = 1:num_A
+        current_A = A_normal(i, :);
         
-        % initialize best_d_idx and closest_distance for comparisons
-        best_d_idx = -1;
+        % initialize best_A_idx and closest_distance for comparisons
+        best_A_idx = -1;
         closest_distance = Inf;
         
         % compare the current feature to the vocabulary features to get the
         % closest match
         for j = 1:vocabulary_size
             current_vocab_d = vocabulary(j, :)';
-            current_distance = norm(current_vocab_d - double(current_d));
+            current_distance = norm(current_vocab_d - double(current_A));
             
             if current_distance < closest_distance
                 % update best_d and closest_distance
-                best_d_idx = j;
+                best_A_idx = j;
                 closest_distance = current_distance;
             end
         end
         
         % update the BoW histogram
-        BoW(best_d_idx) = BoW(best_d_idx) + 1;
+        BoW(best_A_idx) = BoW(best_A_idx) + 1;
     end
     
     % normalize the BoW histogram

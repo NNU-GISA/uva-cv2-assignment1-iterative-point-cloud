@@ -69,36 +69,76 @@ A1_normal = readPcd(fullfile(datadir, ids(2) + '_normal.pcd'));
 A1_cloud =  readPcd(fullfile(datadir, ids(2) + '.pcd'));
 A2_normal = readPcd(fullfile(datadir, ids(3) + '_normal.pcd'));
 A2_cloud =  readPcd(fullfile(datadir, ids(3) + '.pcd'));
-A1 = filter_nanormals(A1_cloud, A1_normal);
-A2 = filter_nanormals(A2_cloud, A2_normal);
+[A1, A1n] = filter_nanormals(A1_cloud, A1_normal);
+[A2, A2n] = filter_nanormals(A2_cloud, A2_normal);
 
-A1_cam = xmlread(fullfile(datadir, ids(2) + '_camera.xml'));
-A1_mat = load(fullfile(datadir, ids(2) + '.mat'));
-root = A1_mat.getDocumentElement();
-A1_intrinsic = root.getAttribute('intrinsic').getAttribute('data');
-A1_R =         root.getAttribute('R')        .getAttribute('data');
-A1_t =         root.getAttribute('t')        .getAttribute('data');
+% % xml crap: never mind this!
+% A1_cam = xmlread(fullfile(datadir, ids(2) + '_camera.xml'));
+% A1_mat = load(fullfile(datadir, ids(2) + '.mat'));
+% root = A1_mat.getDocumentElement();
+% A1_intrinsic = root.getAttribute('intrinsic').getAttribute('data');
+% A1_R =         root.getAttribute('R')        .getAttribute('data');
+% A1_t =         root.getAttribute('t')        .getAttribute('data');
 
 [R, t] = icp(A1, A2, 0.001, 'uniform', 400);
 
-for i = 0:99
+Ais = [];
+Ains = [];
+for i = 1:00
     Ai_normal = readPcd(fullfile(datadir, ids(i) + '_normal.pcd'));
     Ai =        readPcd(fullfile(datadir, ids(i) +        '.pcd'));
-    Filter_Ai = filter_nanormals(Ai, Ai_normal);
-    if prev_A
-        [R, t] = icp(prev_A, Filter_Ai, 0.001, 'uniform', 400);
-    end
-    prev_A = Filter_Ai;
+    % Filter_Ai = filter_nanormals(Ai, Ai_normal);
+    [Ai_, Ain_] = filter_nanormals(Ai, A1_normal);
+    Ais(:,:,i) = Ai_;
+    Ains(:,:,i) = Ain_;
+    % if prev_A
+    %     [R(:,:,i), t(:,i)] = icp(prev_A, Filter_Ai, 0.001, 'uniform', 400);
+    % end
+    % prev_A = Filter_Ai;
 end
 % Run ICP
 
 
-[~, vocabulary] = kmeans(double(D'), vocabulary_size, 'display', 'off', 'replicates', 1, 'maxiter', 100);
-bow_path = strcat(folder, 'bow.mat');
+% normalize over totals
+totals = sum(BoW, 1);
+normalized = BoW ./ totals;
+weights = sum(normalized, 2);
+
+
+% generate normals vocabulary
+vocabulary_size = 10;
+[~, vocabulary] = kmeans(double(A1n), vocabulary_size, 'display', 'off', 'replicates', 1, 'maxiter', 100);
+% create BoW histograms
 BoW = [];
-for i = 1:size(I_BoW, 2)
-    BoW_ = get_BoW(I_BoW{i}, vocabulary, sampling_method, sift_descriptor, descriptor_type);
+for i = 1:100
+    Ai_normal = readPcd(fullfile(datadir, ids(i) + '_normal.pcd'));
+    Ai =        readPcd(fullfile(datadir, ids(i) +        '.pcd'));
+    [Ai_, Ain_] = filter_nanormals(Ai, Ai_normal);
+    BoW_ = get_BoW(Ain_, vocabulary);
     BoW = cat(1, BoW, BoW_);
 end
 
+% point selection by sub-sampling more from informative regions based on infrequent normals
+% build vocab
+vocabulary_size = 10;
+[~, vocabulary] = kmeans(double(A1n), vocabulary_size, 'display', 'off', 'replicates', 1, 'maxiter', 100);
+i = 1
+Ai_normal = readPcd(fullfile(datadir, ids(i) + '_normal.pcd'));
+Ai =        readPcd(fullfile(datadir, ids(i) +        '.pcd'));
+[Ai_, Ain_] = filter_nanormals(Ai, Ai_normal);
+% BoW features
+BoW_ = get_BoW(Ain_, vocabulary);
+% normalize to penalize points with common features
+totals = sum(BoW, 1);
+normalized = BoW ./ totals;
+sample_weights = sum(normalized, 2);
+% calculate ICP using our new-found weighting
+[R, t, scoreArray] = icp(A1, A2, 0.001, 'uniform', 400, sample_weights, 100);
+% visualize original point cloud
+f1 = visualize_cloud(Ai_);
+saveas(f1, 'before-sampling.png');
+% visualize our evidently improved rotated/translated one
+Ai__ = Ai_ * R + t;
+f2 = visualize_cloud(Ai__);
+saveas(f2, 'interest-sampling.png');
 

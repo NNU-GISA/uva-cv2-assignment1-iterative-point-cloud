@@ -1,14 +1,14 @@
-function filtered_points2 = filter_nanormals(cloud, normals)
+function [filtered_points2, filtered_normals2] = filter_nanormals(cloud, normals)
 
 
 
 nonNans = ~isnan(normals(:,1));
 filtered_points = cloud(nonNans,:);
-
+filtered_normals = normals(nonNans,:);
 
 outliers = filtered_points(:,3) < 1;
 filtered_points2 = filtered_points(outliers,:);
-
+filtered_normals2 = filtered_normals(outliers,:);
 
 % x = filtered_points2(:,1);
 % y = filtered_points2(:,2);
