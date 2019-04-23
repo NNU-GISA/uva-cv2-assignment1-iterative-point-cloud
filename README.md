@@ -6,8 +6,7 @@
 - [x] all the points
 - [x] uniform sub-sampling
 - [x] random sub-sampling in each iteration
-- [ ] sub-sampling more from informative regions
-    - how to map regions back to points?
+- [x] sub-sampling more from informative regions
 
 ### analyze
 - [x] accuracy
