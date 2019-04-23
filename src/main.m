@@ -30,3 +30,13 @@ A2 = filter_nanormals(A2_cloud, A2_normal);
 %% Run ICP
 [R, t] = icp(A1, A2);
 
+
+[~, vocabulary] = kmeans(double(D'), vocabulary_size, 'display', 'off', 'replicates', 1, 'maxiter', 100);
+bow_path = strcat(folder, 'bow.mat');
+BoW = [];
+for i = 1:size(I_BoW, 2)
+    BoW_ = get_BoW(I_BoW{i}, vocabulary, sampling_method, sift_descriptor, descriptor_type);
+    BoW = cat(1, BoW, BoW_);
+end
+
+
