@@ -1,4 +1,4 @@
-function [R, t] = icp(A1, A2, epsilon, sampling_strategy, n_samples, sample_weights)
+function [R, t, scoreArray] = icp(A1, A2, epsilon, sampling_strategy, n_samples, sample_weights, max_iter)
 % ICP Iterative Closest Point algorithm.
 % Given two point-clouds A1 (base) and A2 (target), ICP tries to find a spatial transformation that minimizes the distance (e.g. Root Mean Square (RMS)) between A1 and A2
 % r and t are the rotation matrix and the translation vector in d dimensions, respectively. ψ is a one-to-one matching function that creates correspondences between the elements of A1 and A2. r and t that minimize above equation are used to define camera movement between A1 and A2.
@@ -44,11 +44,15 @@ end
 R = eye(d1);
 t = zeros(1, d1);
 
-% initialize scores
-prev_score = 1;
+% initialize score
 cur_score = 0;
 
-while abs(cur_score - prev_score) > epsilon
+doWhile = true;
+
+scoreArray = [];
+n_iter = 0;
+
+while doWhile
     
     % determine new p values
     if strcmp(sampling_strategy, 'all') || strcmp(sampling_strategy, 'uniform')
@@ -75,20 +79,18 @@ while abs(cur_score - prev_score) > epsilon
     prev_score = cur_score;
     cur_score = icp_eval(p, q, new_R, new_t);
     
+    scoreArray = [scoreArray cur_score];
+    n_iter = n_iter + 1;
+    
     % display score for this iteration
     disp(cur_score);
     
-end
-end
-
-function idx = match_points(p, q)
-idx = zeros(1, size(p, 1));
-% determine closest point in q per point in p
-% (1 at a time to avoid memory errors)
-for i = 1:size(p, 1)
-    d = dist(p(i, :), q');
-    [~, j] = min(d, [], 2);
-    idx(i) = j;
+    if nargin >= 7
+        doWhile = n_iter < max_iter;
+    else
+        doWhile = abs(cur_score - prev_score) > epsilon;
+    end
+    
 end
 end
 
