@@ -110,6 +110,8 @@ scalar_factor = linspace(1,3,n);
 % you probably want to recompute the score over the entire dataset just
 % like was done for accuracy (line 61,62,63)
 
+%{
+
 for i = 1:n
     
 %      R = [1,-0.00292012801766150,-0.0827472646167709,0;
@@ -143,6 +145,7 @@ xlabel('Changes in magnitude')
 resStabilityArray = resStabilityArray / n_iter_test;
 
 disp(resStabilityArray);
+%}
 
 %% Test tolerance to noise
 
