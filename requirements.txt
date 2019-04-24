@@ -1,0 +1,1 @@
+We used fscatter3 to visualize the point-clouds (as was recommended in the assignment). We use a setup file that assumes that the fscatter3 directory is on the same level as the src directory. As we made some slight changes to the fscatter3 files, we have added the files to this submission.

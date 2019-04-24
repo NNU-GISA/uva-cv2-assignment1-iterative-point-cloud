@@ -7,8 +7,8 @@ resdir = setup();
 datadir = fullfile(resdir, 'data');
 
 %% Params
-n_iter_test = 20;
-sigmaArray = [ 0 0.1 0.2 0.3 ];  % used to generate noise
+n_iter_test = 5;
+sigmaArray = [ 0 0.05 0.1 0.15 ];  % used to generate noise
 
 % test rotation matrix (10 degrees around the z-axis)
 rad = 30 * pi / 180;
@@ -24,7 +24,7 @@ test_t = [ 0.025 0.050 0.100 0 ];
 
 % test data
 A1 = loadA(datadir, "0000000000");
-sample_weights = ones(1, size(A1, 1));  % TODO use some kind of get_weights function
+sample_weights = ones(1, size(A1, 1));  % TODO use get_weights function
 A2 = A1(randperm(size(A1, 1)), :) * test_R' + test_t;
 
 % icp params
@@ -146,7 +146,7 @@ disp(resStabilityArray);
 
 %% Test tolerance to noise
 
-resNoiseArray = zeros(n_strategies, length(sigmaArray), n_iter_icp);
+resNoiseArray = zeros(n_strategies, length(sigmaArray), n_iter_test, n_iter_icp);
 
 for k = 1:n_strategies
     for j = 1:length(sigmaArray)
@@ -165,19 +165,32 @@ for k = 1:n_strategies
             else
                 scoreArray = scoreArray ./ n_samples;
             end
-            resNoiseArray(k, j, :) = resNoiseArray(k, j, :) + reshape(sqrt(scoreArray), 1, 1, n_iter_icp);
+            resNoiseArray(k, j, i, :) = resNoiseArray(k, j, i, :) + reshape(sqrt(scoreArray), 1, 1, 1, n_iter_icp);
 
         end
     end
 end
 
-resNoiseArray = resNoiseArray ./ n_iter_test;
-
-% output data
+%% output data (Tolerance to Noise)
 for j = 1:length(sigmaArray)
+    resNoiseDat = reshape(resNoiseArray(:, j, :, :), n_strategies, n_iter_test, n_iter_icp);
+    resNoiseMean = reshape(mean(resNoiseDat, 2), n_strategies, n_iter_icp);
+    resNoiseVar = reshape(var(resNoiseDat, 1, 2), n_strategies, n_iter_icp);
+    resNoiseAbsVar = abs(resNoiseVar);
+    
+    figure();
+    hold on;
+    for k = 1:size(sampling_strategies, 2)
+        errorbar([1:size(resNoiseMean(k, :), 2)] + (k-1)*0.15, resNoiseMean(k, :), -resNoiseAbsVar(k, :), resNoiseAbsVar(k, :), 'horizontal');
+    end
+    hold off;
+    xlabel("#iterations");
+    ylabel("RMS error");
     title_str = sprintf('Tolerance to noise (sigma=%.2f)', sigmaArray(j));
-    create_plot(reshape(resNoiseArray(:, j, :), n_strategies, n_iter_icp), ...
-        sampling_strategies, '#iterations', 'RMS error', title_str)
+    title(title_str);
+    legend(sampling_strategies);
+    grid on;    
+    
 end
 
 %% Plotting function
